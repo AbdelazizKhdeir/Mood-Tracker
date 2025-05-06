@@ -1,7 +1,6 @@
 const express = require("express");
 const bcrypt = require("bcryptjs");
 const User = require("../models/User");
-const { findByIdAndUpdate } = require("../models/Mood");
 const router = express.Router();
 
 // Register user
@@ -61,14 +60,29 @@ router.get("/:id", async (req, res) => {
 //Update User
 router.put("/:id", async (req, res) => {
   try {
-    const { id } = req.params;
-    const Updated = await User.findByIdAndUpdate(id, req.body, { new: true });
-    if (!Updated) {
-      res.status(404).json({ error: "User Not Found" });
+    const updates = { ...req.body };
+
+    // Hash password if it’s being changed
+    if (updates.password) {
+      updates.password = await bcrypt.hash(updates.password, 10);
     }
-    res.json(Updated);
+
+    // Find, update, and return the new user document
+    const user = await User.findByIdAndUpdate(req.params.id, updates, {
+      new: true,
+      runValidators: true,
+    });
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    // Remove password before sending response
+    const userObj = user.toObject();
+    delete userObj.password;
+
+    return res.status(200).json(userObj);
   } catch (err) {
-    res.status(400).json({ error: err.message });
+    return res.status(400).json({ error: err.message });
   }
 });
 
