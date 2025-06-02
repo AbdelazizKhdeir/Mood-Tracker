@@ -10,19 +10,13 @@ const moodRoutes = require("./routes/moodRoutes");
 const userRoutes = require("./routes/userRoutes");
 
 const app = express();
-const FRONTEND_URL = process.env.FRONTEND_URL;
-const NODE_ENV = process.env.NODE_ENV;
+
 
 // Middlewares
 app.use(express.json());
 app.use(cookieParser());
 
-app.use(cors({
-  origin: FRONTEND_URL,
-  credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type'],
-}));
+app.use(cors());
 
 mongoose
   .connect(process.env.MONGO_URI)
