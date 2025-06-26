@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Home | Mood Tracker</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    />
+
+    <style>
+      :root {
+        --primary: #00bcd4;
+        --background: #f5f5f5;
+        --dark-bg: #121212;
+        --light-text: #ffffff;
+        --dark-text: #e0e0e0;
+      }
+
+      body {
+        margin: 0;
+        font-family: "Segoe UI", sans-serif;
+        background-color: var(--background);
+        color: #333;
+        transition: background-color 0.3s, color 0.3s;
+      }
+
+      body.dark-mode {
+        background-color: var(--dark-bg);
+        color: var(--dark-text);
+      }
+
+      .layout {
+        display: flex;
+        min-height: 100vh;
+      }
+
+      .sidebar {
+        width: 220px;
+        background-color: #222;
+        color: var(--light-text);
+        padding: 1rem;
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+      }
+
+      .sidebar .logo {
+        font-size: 1.5rem;
+        font-weight: bold;
+        color: var(--primary);
+        margin-bottom: 1rem;
+      }
+
+      .nav-link {
+        display: flex;
+        align-items: center;
+        padding: 0.6rem 0.8rem;
+        border-radius: 8px;
+        color: var(--light-text);
+        text-decoration: none;
+        gap: 10px;
+        transition: background 0.3s;
+      }
+
+      .nav-link:hover,
+      .nav-link.active {
+        background-color: #333;
+      }
+
+      .main {
+        flex: 1;
+        padding: 2rem;
+      }
+
+      .header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 2rem;
+        flex-wrap: wrap;
+        gap: 1rem;
+      }
+
+      .header h1 {
+        margin: 0;
+        color: var(--primary);
+      }
+
+      .card {
+        background-color: #fff;
+        padding: 2rem;
+        border-radius: 12px;
+        box-shadow: 0 0 12px rgba(0, 0, 0, 0.1);
+        text-align: center;
+        transition: background-color 0.3s;
+      }
+
+      .card img {
+        width: 200px;
+        height: auto;
+        margin-bottom: 1rem;
+      }
+
+      .card h2 {
+        margin-bottom: 0.5rem;
+      }
+
+      .card p {
+        color: #777;
+        margin-bottom: 1.5rem;
+      }
+
+      .btn-add {
+        background-color: var(--primary);
+        color: white;
+        padding: 0.6rem 1.2rem;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 1rem;
+        transition: background-color 0.3s;
+      }
+
+      .btn-add:hover {
+        background-color: #008fa1;
+      }
+
+      .logout-btn {
+        background: transparent;
+        color: var(--primary);
+        border: 1px solid var(--primary);
+        padding: 0.6rem 1rem;
+        border-radius: 8px;
+        cursor: pointer;
+      }
+
+      .theme-toggle-btn {
+        background-color: transparent;
+        border: 1px solid var(--primary);
+        color: var(--primary);
+        border-radius: 8px;
+        padding: 0.6rem 1rem;
+        cursor: pointer;
+      }
+
+      /* Dark mode specific styles */
+      body.dark-mode .card {
+        background-color: #1e1e1e;
+      }
+
+      body.dark-mode .sidebar {
+        background-color: #181818;
+      }
+
+      body.dark-mode .nav-link {
+        color: #ccc;
+      }
+
+      body.dark-mode .nav-link.active,
+      body.dark-mode .nav-link:hover {
+        background-color: #333;
+      }
+
+      body.dark-mode .card p {
+        color: #aaa;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="layout">
+      <!-- Sidebar -->
+      <nav class="sidebar">
+        <div class="logo">MoodTracker</div>
+        <a href="/home" class="nav-link active">
+          <i class="fas fa-home"></i>
+          <span>Dashboard</span>
+        </a>
+        <a href="/daily" class="nav-link">
+          <i class="fas fa-plus-circle"></i>
+          <span>Add Mood</span>
+        </a>
+        <a href="/calendar" class="nav-link">
+          <i class="fas fa-calendar-alt"></i>
+          <span>Calendar</span>
+        </a>
+        <a href="/trend" class="nav-link">
+          <i class="fas fa-chart-line"></i>
+          <span>Trends</span>
+        </a>
+        <a href="/settings" class="nav-link">
+          <i class="fas fa-cog"></i>
+          <span>Settings</span>
+        </a>
+      </nav>
+
+      <!-- Main Content -->
+      <section class="main">
+        <div class="header">
+          <div>
+            <h1>Your Mood Diary</h1>
+            <p style="color: var(--primary)">Hello, <%= username %></p>
+          </div>
+          <div style="display: flex; align-items: center; gap: 10px">
+            <button id="themeToggle" class="theme-toggle-btn">
+              🌙 Dark Mode
+            </button>
+            <button class="logout-btn" onclick="location.href='/logout'">
+              <i class="fas fa-sign-out-alt"></i> Logout
+            </button>
+            <button class="btn-add" onclick="location.href='/daily'">
+              <i class="fas fa-plus"></i> Add Mood
+            </button>
+          </div>
+        </div>
+
+        <div class="card">
+          <img src="/images/empty-tree.avif" alt="No mood recorded yet" />
+          <h2>No mood recorded yet</h2>
+          <p>Start tracking your emotional journey by adding your first mood</p>
+          <button class="btn-add" onclick="location.href='/daily'">
+            Record your first mood
+          </button>
+        </div>
+      </section>
+    </div>
+
+    <script>
+      const toggleButton = document.getElementById("themeToggle");
+      const savedTheme = localStorage.getItem("theme");
+
+      if (savedTheme === "dark") {
+        document.body.classList.add("dark-mode");
+        toggleButton.textContent = "🌞 Light Mode";
+      }
+
+      toggleButton.addEventListener("click", () => {
+        document.body.classList.toggle("dark-mode");
+        const isDark = document.body.classList.contains("dark-mode");
+        toggleButton.textContent = isDark ? "🌞 Light Mode" : "🌙 Dark Mode";
+        localStorage.setItem("theme", isDark ? "dark" : "light");
+      });
+    </script>
+  </body>
+</html>

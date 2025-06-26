@@ -3,101 +3,72 @@ const bcrypt = require("bcryptjs");
 const User = require("../models/User");
 const router = express.Router();
 
-// Register user
+// ✅ Middleware to check if user is logged in
+const isAuthenticated = (req, res, next) => {
+  if (req.cookies && req.cookies.username) return next();
+  return res.redirect("/login");
+};
+
+// ✅ GET: Register Page
+router.get("/register", (req, res) => {
+  res.render("register", { error: null });
+});
+
+// ✅ POST: Register User
 router.post("/register", async (req, res) => {
   try {
     const { username, password } = req.body;
-    const exist = await User.findOne({ username });
-    if (exist) return res.status(400).json({ error: "User already exists" });
 
-    const hash = await bcrypt.hash(password,10);
-    const user = new User({ username, password: hash });
+    const existingUser = await User.findOne({ username });
+    if (existingUser) {
+      return res.render("register", { error: "Username already exists" });
+    }
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+    const user = new User({ username, password: hashedPassword });
     await user.save();
-    res.status(201).json({ message: "User registered" });
+
+    // 🔁 Redirect to login page after registration
+    res.redirect("/login");
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    console.error("Register Error:", err);
+    res.render("register", { error: "Registration failed" });
   }
 });
 
-//Login User
+// ✅ GET: Login Page
+router.get("/login", (req, res) => {
+  res.render("login", { error: null });
+});
+
+// ✅ POST: Login User
 router.post("/login", async (req, res) => {
   try {
     const { username, password } = req.body;
+
     const user = await User.findOne({ username });
-    if (!user || !(await bcrypt.compare(password, user.password))) {
-      return res.status(401).json({ error: "Invalid credentials" });
-    }
-    res.json({ message: "Login successful" });
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
-
-//Get All Users
-router.get("/", async (req, res) => {
-  try {
-    const users = await User.find();
-    res.json(users);
-  } catch (err) {
-    res.status(400).json({ error: err.message });
-  }
-});
-
-//Get One User By ID
-router.get("/:id", async (req, res) => {
-  try {
-    const { id } = req.params;
-    const user = await User.findById(id);
     if (!user) {
-      return res.status(404).json({ error: "User not found" });
+      return res.render("login", { error: "Invalid username or password" });
     }
-    return res.status(200).json(user);
+
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) {
+      return res.render("login", { error: "Invalid username or password" });
+    }
+
+    // ✅ Set cookie and redirect to home
+    res.cookie("username", user.username, { httpOnly: true });
+    res.redirect("/home");
   } catch (err) {
-    return res.status(400).json({ error: err.message });
+    console.error("Login Error:", err);
+    res.render("login", { error: "Login failed" });
   }
 });
 
-//Update User
-router.put("/:id", async (req, res) => {
-  try {
-    const updates = { ...req.body };
-
-    // Hash password if it’s being changed
-    if (updates.password) {
-      updates.password = await bcrypt.hash(updates.password, 10);
-    }
-
-    // Find, update, and return the new user document
-    const user = await User.findByIdAndUpdate(req.params.id, updates, {
-      new: true,
-      runValidators: true,
-    });
-    if (!user) {
-      return res.status(404).json({ error: "User not found" });
-    }
-
-    // Remove password before sending response
-    const userObj = user.toObject();
-    delete userObj.password;
-
-    return res.status(200).json(userObj);
-  } catch (err) {
-    return res.status(400).json({ error: err.message });
-  }
-});
-
-//Delete User
-router.delete("/:id", async (req, res) => {
-  try {
-    const { id } = req.params;
-    const Deleted = await User.findByIdAndDelete(id);
-    if (!Deleted) {
-      res.status(404).json({ error: "User Not Found" });
-    }
-    res.json({ message: "User Deleted !!" });
-  } catch (err) {
-    res.status(400).json({ error: err.message });
-  }
+// ✅ GET: Logout
+router.get("/logout", (req, res) => {
+  res.clearCookie("username");
+  res.redirect("/login");
 });
 
 module.exports = router;

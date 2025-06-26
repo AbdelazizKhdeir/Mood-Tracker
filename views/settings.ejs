@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Settings | Mood Tracker</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+      crossorigin="anonymous"
+    />
+    <style>
+      :root {
+        --primary-light: #4a90e2;
+        --primary-dark: #90aaff;
+        --dark-bg: #121b39;
+        --dark-text: #e6eaf3;
+        --light-bg: #ffffff;
+        --light-text: #121212;
+        --card-light-bg: #f9f9f9;
+        --card-dark-bg: rgba(18, 27, 57, 0.85);
+        --radius: 16px;
+        --transition: 0.3s ease;
+      }
+
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      body {
+        font-family: "Segoe UI", sans-serif;
+        background-color: var(--light-bg);
+        color: var(--light-text);
+        min-height: 100vh;
+        transition: background-color var(--transition), color var(--transition);
+        display: flex;
+      }
+
+      body.dark-mode {
+        background-color: var(--dark-bg);
+        color: var(--dark-text);
+      }
+
+      .layout {
+        display: flex;
+        width: 100%;
+      }
+
+      .sidebar {
+        width: 220px;
+        background-color: #222;
+        color: #ffffff;
+        padding: 1rem;
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+      }
+      .sidebar .logo {
+        font-size: 1.5rem;
+        font-weight: bold;
+        color: var(--primary-light);
+      }
+      .nav-link {
+        display: flex;
+        align-items: center;
+        padding: 0.6rem 0.8rem;
+        border-radius: 8px;
+        color: #ffffff;
+        text-decoration: none;
+        gap: 0.5rem;
+        transition: background 0.3s;
+      }
+      .nav-link:hover,
+      .nav-link.active {
+        background-color: #333;
+      }
+
+      .main {
+        flex: 1;
+        padding: 2rem;
+        max-width: 700px;
+        margin: auto;
+      }
+
+      .back-button {
+        background: #ffffff;
+        color: var(--primary-light);
+        padding: 0.5rem 1.2rem;
+        border-radius: 8px;
+        font-weight: 600;
+        text-decoration: none;
+        transition: background-color var(--transition), color var(--transition);
+      }
+      .back-button:hover {
+        background-color: #357bd8;
+        color: white;
+      }
+      body.dark-mode .back-button {
+        background: rgba(255 255 255 / 0.9);
+        color: var(--dark-bg);
+      }
+      body.dark-mode .back-button:hover {
+        background-color: #145dbf;
+        color: white;
+      }
+
+      .theme-toggle-btn {
+        background: transparent;
+        color: var(--primary-light);
+        padding: 8px 16px;
+        border: none;
+        cursor: pointer;
+        margin-bottom: 1.5rem;
+        display: block;
+        margin-left: auto;
+        margin-right: auto;
+        font-size: 1rem;
+      }
+      body.dark-mode .theme-toggle-btn {
+        color: white;
+      }
+
+      .container {
+        flex: 1;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 40px 20px;
+      }
+      .card {
+        background: var(--card-light-bg);
+        border-radius: var(--radius);
+        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+        padding: 2.5rem;
+        width: 100%;
+        max-width: 500px;
+        transition: background-color var(--transition), color var(--transition);
+      }
+      body.dark-mode .card {
+        background-color: var(--card-dark-bg);
+        color: var(--dark-text);
+        backdrop-filter: blur(6px);
+        -webkit-backdrop-filter: blur(6px);
+        box-shadow: 0 8px 30px rgba(37, 117, 252, 0.6);
+      }
+      h2 {
+        text-align: center;
+        margin-bottom: 2rem;
+        color: var(--primary-light);
+        font-size: 2rem;
+        transition: color var(--transition);
+      }
+      body.dark-mode h2 {
+        color: var(--primary-dark);
+      }
+      label {
+        display: block;
+        margin-top: 1.5rem;
+        font-weight: 600;
+      }
+      input {
+        width: 100%;
+        margin-top: 0.5rem;
+        padding: 0.8rem 1rem;
+        border: 1px solid #ccc;
+        border-radius: 10px;
+        font-size: 1rem;
+        background-color: #fff;
+      }
+      input:focus {
+        border-color: var(--primary-light);
+        outline: none;
+        box-shadow: 0 0 8px rgba(74, 144, 226, 0.5);
+      }
+      body.dark-mode input {
+        background-color: #1a2345;
+        border-color: #90aaff;
+        color: var(--dark-text);
+      }
+      body.dark-mode input:focus {
+        border-color: var(--primary-dark);
+        box-shadow: 0 0 8px rgba(144, 170, 255, 0.7);
+      }
+      button[type="submit"] {
+        margin-top: 2rem;
+        width: 100%;
+        padding: 0.9rem;
+        background-color: var(--primary-light);
+        color: white;
+        border: none;
+        border-radius: 12px;
+        font-size: 1.05rem;
+        font-weight: 600;
+        cursor: pointer;
+        box-shadow: 0 6px 15px rgba(74, 144, 226, 0.5);
+        transition: background-color var(--transition),
+          box-shadow var(--transition);
+      }
+      button[type="submit"]:hover {
+        background-color: #357bd8;
+        box-shadow: 0 8px 20px rgba(53, 123, 216, 0.7);
+      }
+
+      @media (max-width: 600px) {
+        .card {
+          padding: 2rem 1.5rem;
+        }
+        h2 {
+          font-size: 1.6rem;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="layout">
+      <!-- Sidebar -->
+      <aside class="sidebar">
+        <div class="logo">MoodTracker</div>
+        <a href="/home" class="nav-link"><i class="fas fa-home"></i> Home</a>
+        <a href="/daily" class="nav-link"
+          ><i class="fas fa-plus-circle"></i> Add Mood</a
+        >
+        <a href="/calendar" class="nav-link"
+          ><i class="fas fa-calendar-alt"></i> Calendar</a
+        >
+        <a href="/trend" class="nav-link"
+          ><i class="fas fa-chart-line"></i> Trends</a
+        >
+        <a href="/settings" class="nav-link active"
+          ><i class="fas fa-cog"></i> Settings</a
+        >
+      </aside>
+
+      <!-- Main Content -->
+      <div class="main">
+        <header>
+          <button id="themeToggle" class="theme-toggle-btn">
+            🌙 Dark Mode
+          </button>
+        </header>
+        <div class="container">
+          <div class="card">
+            <h2>Update Password</h2>
+      <form action="/settings" method="POST">
+           <label for="username">New Username</label>
+    <input
+      type="text"
+      name="username"
+      id="username"
+      value="<%= username %>"
+      required
+   />
+
+        <label for="password">New Password</label>
+        <input type="password" name="password" id="password" placeholder="Your secure password" required />
+        <button type="submit">Save Changes</button>
+      </form>
+
+<% if (typeof error !== 'undefined' && error) { %>
+  <p class="error"><%= error %></p>
+<% } %>
+
+<% if (typeof success !== 'undefined' && success) { %>
+  <p class="success"><%= success %></p>
+<% } %>
+
+  </div>
+            
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      const toggleButton = document.getElementById("themeToggle");
+      const bodyEl = document.body;
+      const savedTheme = localStorage.getItem("theme");
+      if (savedTheme === "dark") {
+        bodyEl.classList.add("dark-mode");
+        toggleButton.textContent = "🌞 Light Mode";
+      }
+      toggleButton.addEventListener("click", () => {
+        const isDark = bodyEl.classList.toggle("dark-mode");
+        toggleButton.textContent = isDark ? "🌞 Light Mode" : "🌙 Dark Mode";
+        localStorage.setItem("theme", isDark ? "dark" : "light");
+      });
+    </script>
+  </body>
+</html>

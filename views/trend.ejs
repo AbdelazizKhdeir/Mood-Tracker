@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Trend | Mood Tracker</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+      crossorigin="anonymous"
+    />
+    <style>
+      /* … your existing CSS exactly as before … */
+      :root {
+        --dark-bg: #121b39;
+        --light-bg: #ffffff;
+        --dark-text: #e6eaf3;
+        --light-text: #121212;
+        --primary-light: #4a90e2;
+        --primary-dark: #90aaff;
+        --card-dark: rgba(18, 27, 57, 0.85);
+        --card-light: #f4f4f4;
+        --radius: 12px;
+        --spacing: 2rem;
+      }
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      body {
+        font-family: "Segoe UI", Tahoma, sans-serif;
+        background-color: var(--light-bg);
+        color: var(--light-text);
+        min-height: 100vh;
+        transition: background 0.3s ease, color 0.3s ease;
+      }
+      body.dark-mode {
+        background-color: var(--dark-bg);
+        color: var(--dark-text);
+      }
+      .layout {
+        display: flex;
+        min-height: 100vh;
+      }
+      .sidebar {
+        width: 220px;
+        background-color: #222;
+        color: var(--dark-text);
+        padding: 1rem;
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+      }
+      .sidebar .logo {
+        font-size: 1.5rem;
+        font-weight: bold;
+        color: var(--primary-light);
+        margin-bottom: 1rem;
+      }
+      .nav-link {
+        display: flex;
+        align-items: center;
+        padding: 0.6rem 0.8rem;
+        border-radius: 8px;
+        color: var(--dark-text);
+        text-decoration: none;
+        gap: 10px;
+        transition: background 0.3s;
+      }
+      .nav-link:hover,
+      .nav-link.active {
+        background-color: #333;
+      }
+      body.dark-mode .theme-toggle-btn {
+        color: white;
+        border-color: white;
+      }
+      body.dark-mode .nav-link {
+        color: var(--dark-text);
+      }
+      .main {
+        flex: 1;
+        padding: 2rem;
+        max-width: 700px;
+        margin: auto;
+      }
+      h1 {
+        text-align: center;
+        color: var(--primary-light);
+        font-size: 2rem;
+        margin-bottom: 0.5rem;
+      }
+      body.dark-mode h1 {
+        color: var(--primary-dark);
+      }
+      h2 {
+        text-align: center;
+        color: var(--primary-light);
+        font-size: 1.25rem;
+        margin-bottom: var(--spacing);
+      }
+      body.dark-mode h2 {
+        color: var(--primary-dark);
+      }
+      .theme-toggle-btn {
+        background: transparent;
+        color: var(--blue);
+        padding: 8px 16px;
+        border-radius: 6px;
+        cursor: pointer;
+        margin-bottom: 1.5rem;
+        display: block;
+        margin-left: auto;
+        margin-right: auto;
+        font-size: 1rem;
+      }
+      .chart-container {
+        max-width: 800px;
+        height: 400px;
+        margin: 0 auto;
+      }
+      canvas {
+        width: 100% !important;
+        height: 100% !important;
+      }
+      .back-link {
+        display: block;
+        width: fit-content;
+        margin: var(--spacing) auto 0;
+        padding: 12px 24px;
+        background-color: var(--primary-light);
+        color: #fff;
+        border-radius: var(--radius);
+        text-decoration: none;
+        text-align: center;
+        transition: background 0.3s ease;
+      }
+      .back-link:hover {
+        background-color: var(--primary-dark);
+      }
+      body.dark-mode .back-link {
+        background-color: var(--primary-dark);
+      }
+      @media (max-width: 768px) {
+        .layout {
+          flex-direction: column;
+        }
+        .sidebar {
+          width: 100%;
+          flex-direction: row;
+          justify-content: space-around;
+          padding: 0.5rem;
+        }
+        .main {
+          padding: 1rem;
+        }
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="layout">
+      <!-- Sidebar -->
+      <aside class="sidebar">
+        <div class="logo">MoodTracker</div>
+        <a href="/home" class="nav-link"><i class="fas fa-home"></i> Home</a>
+        <a href="/daily" class="nav-link">
+          <i class="fas fa-plus-circle"></i> Add Mood
+        </a>
+        <a href="/calendar" class="nav-link">
+          <i class="fas fa-calendar-alt"></i> Calendar
+        </a>
+        <a href="/trend" class="nav-link active">
+          <i class="fas fa-chart-line"></i> Trends
+        </a>
+        <a href="/settings" class="nav-link">
+          <i class="fas fa-cog"></i> Settings
+        </a>
+      </aside>
+
+      <!-- Main Content -->
+      <main class="main">
+        <button id="themeToggle" class="theme-toggle-btn">🌙 Dark Mode</button>
+
+        <h1>Mood Chart</h1>
+        <h2>Distribution & Percentages</h2>
+
+        <div class="chart-container">
+          <canvas id="moodChart"></canvas>
+        </div>
+      </main>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+      (function () {
+        const btn = document.getElementById("themeToggle");
+        const savedTheme = localStorage.getItem("theme");
+        if (savedTheme === "dark") {
+          document.body.classList.add("dark-mode");
+          btn.textContent = "🌞 Light Mode";
+        }
+        btn.addEventListener("click", () => {
+          const isDark = document.body.classList.toggle("dark-mode");
+          btn.textContent = isDark ? "🌞 Light Mode" : "🌙 Dark Mode";
+          localStorage.setItem("theme", isDark ? "dark" : "light");
+          updateBarColor();
+          updateAxisColors();
+        });
+
+        const moodData = <%- JSON.stringify(data || []) %>;
+        const categories = [
+          "😊 Happy",
+          "😢 Sad",
+          "😠 Angry",
+          "😰 Stressed",
+          "😴 Tired",
+          "😐 Neutral",
+        ];
+
+        // ── UPDATED: use includes() so emoji + text matches ───────────────────────
+        const counts = categories.map(label => {
+          const keyword = label.split(" ")[1].toLowerCase();
+          return moodData.filter(m =>
+            (m || "").toLowerCase().includes(keyword)
+          ).length;
+        });
+        // ─────────────────────────────────────────────────────────────────────────
+
+        const total = counts.reduce((a, b) => a + b, 0) || 1;
+        const percentages = counts.map(c => Math.round((c / total) * 100));
+
+        const ctx = document.getElementById("moodChart").getContext("2d");
+
+        function createGradient() {
+          const gradient = ctx.createLinearGradient(0, 0, 0, 400);
+          const color = getColor();
+          gradient.addColorStop(0, color + "CC");
+          gradient.addColorStop(1, color);
+          return gradient;
+        }
+
+        function getColor() {
+          return document.body.classList.contains("dark-mode")
+            ? getComputedStyle(document.documentElement)
+                .getPropertyValue("--primary-dark")
+                .trim()
+            : getComputedStyle(document.documentElement)
+                .getPropertyValue("--primary-light")
+                .trim();
+        }
+
+        const chart = new Chart(ctx, {
+          type: "bar",
+          data: {
+            labels: categories,
+            datasets: [
+              {
+                label: "Count",
+                data: counts,
+                backgroundColor: categories.map(() => createGradient()),
+                borderRadius: 8,
+                borderSkipped: false,
+              },
+            ],
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              tooltip: {
+                callbacks: {
+                  label: ctx =>
+                    `${ctx.dataset.label}: ${ctx.raw} (${percentages[ctx.dataIndex]}%)`,
+                },
+              },
+              legend: { display: false },
+            },
+            scales: {
+              y: {
+                beginAtZero: true,
+                title: {
+                  display: true,
+                  text: "Count",
+                  font: { size: 16, weight: "bold" },
+                  color: getComputedStyle(document.documentElement).getPropertyValue(
+                    document.body.classList.contains("dark-mode")
+                      ? "--dark-text"
+                      : "--light-text"
+                  ).trim(),
+                },
+                ticks: {
+                  color: getComputedStyle(document.documentElement).getPropertyValue(
+                    document.body.classList.contains("dark-mode")
+                      ? "--dark-text"
+                      : "--light-text"
+                  ).trim(),
+                },
+                grid: {
+                  color: document.body.classList.contains("dark-mode")
+                    ? "rgba(230, 234, 243, 0.2)"
+                    : "rgba(0,0,0,0.1)",
+                },
+              },
+              x: {
+                title: {
+                  display: true,
+                  text: "Mood",
+                  font: { size: 16, weight: "bold" },
+                  color: getComputedStyle(document.documentElement).getPropertyValue(
+                    document.body.classList.contains("dark-mode")
+                      ? "--dark-text"
+                      : "--light-text"
+                  ).trim(),
+                },
+                ticks: {
+                  color: getComputedStyle(document.documentElement).getPropertyValue(
+                    document.body.classList.contains("dark-mode")
+                      ? "--dark-text"
+                      : "--light-text"
+                  ).trim(),
+                },
+                grid: { color: "transparent" },
+              },
+            },
+            animation: { duration: 1000, easing: "easeOutBounce" },
+          },
+        });
+
+        if (document.body.classList.contains("dark-mode")) {
+          updateBarColor();
+          updateAxisColors();
+        }
+
+        function updateBarColor() {
+          chart.data.datasets[0].backgroundColor = categories.map(() =>
+            createGradient()
+          );
+          chart.update();
+        }
+
+        function updateAxisColors() {
+          const c = getComputedStyle(document.documentElement).getPropertyValue(
+            document.body.classList.contains("dark-mode")
+              ? "--dark-text"
+              : "--light-text"
+          ).trim();
+          chart.options.scales.x.title.color = c;
+          chart.options.scales.x.ticks.color = c;
+          chart.options.scales.y.title.color = c;
+          chart.options.scales.y.ticks.color = c;
+          chart.options.scales.y.grid.color = document.body.classList.contains(
+            "dark-mode"
+          )
+            ? "rgba(230, 234, 243, 0.2)"
+            : "rgba(0,0,0,0.1)";
+          chart.update();
+        }
+      })();
+    </script>
+  </body>
+</html>

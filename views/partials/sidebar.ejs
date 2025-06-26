@@ -1,0 +1,24 @@
+<!-- views/partials/sidebar.ejs -->
+<nav class="sidebar">
+  <div class="logo">MoodTracker</div>
+  <a href="/home" class="nav-link <%= page === 'home' ? 'active' : '' %>">
+    <i class="fas fa-home"></i>
+    <span>Dashboard</span>
+  </a>
+  <a href="/daily" class="nav-link <%= page === 'daily' ? 'active' : '' %>">
+    <i class="fas fa-plus-circle"></i>
+    <span>Add Mood</span>
+  </a>
+  <a href="/calendar" class="nav-link <%= page === 'calendar' ? 'active' : '' %>">
+    <i class="fas fa-calendar-alt"></i>
+    <span>Calendar</span>
+  </a>
+  <a href="/trend" class="nav-link <%= page === 'trend' ? 'active' : '' %>">
+    <i class="fas fa-chart-line"></i>
+    <span>Trends</span>
+  </a>
+  <a href="/settings" class="nav-link <%= page === 'settings' ? 'active' : '' %>">
+    <i class="fas fa-cog"></i>
+    <span>Settings</span>
+  </a>
+</nav>

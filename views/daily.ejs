@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Daily Mood | Mood Tracker</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <!-- Google Font & Font Awesome -->
+    <link
+      href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+      crossorigin="anonymous"
+    />
+
+    <style>
+      :root {
+        --dark-bg: #121212;
+        --light-bg: #ffffff;
+        --text-dark: #121212;
+        --text-light: #ffffff;
+        --blue: #4a90e2;
+      }
+
+      body {
+        margin: 0;
+        font-family: "Nunito", sans-serif;
+        background: var(--light-bg);
+        color: var(--text-dark);
+        transition: background 0.3s, color 0.3s;
+      }
+      body.dark-mode {
+        background-color: var(--dark-bg);
+        color: var(--text-light);
+      }
+
+      .layout {
+        display: flex;
+        min-height: 100vh;
+      }
+
+      /* Sidebar */
+      .sidebar {
+        width: 220px;
+        background-color: #222;
+        color: var(--text-light);
+        padding: 1rem;
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+      }
+      .sidebar .logo {
+        font-size: 1.5rem;
+        font-weight: bold;
+        color: var(--blue);
+        margin-bottom: 1rem;
+      }
+      .nav-link {
+        display: flex;
+        align-items: center;
+        padding: 0.6rem 0.8rem;
+        border-radius: 8px;
+        color: var(--text-light);
+        text-decoration: none;
+        gap: 10px;
+        transition: background 0.3s;
+      }
+      .nav-link:hover,
+      .nav-link.active {
+        background-color: #333;
+      }
+
+      /* Main */
+      .main {
+        flex: 1;
+        padding: 2rem;
+        max-width: 700px;
+        margin: auto;
+      }
+      h1 {
+        margin-bottom: 1rem;
+        font-size: 2rem;
+        color: var(--blue);
+        text-align: center;
+      }
+      form {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+        background: white;
+        padding: 2rem;
+        border-radius: 12px;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+      }
+      body.dark-mode form {
+        background-color: #1f1f1f;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.6);
+      }
+      label {
+        font-weight: 600;
+      }
+      textarea {
+        resize: vertical;
+        min-height: 80px;
+      }
+      input[type="text"],
+      textarea {
+        padding: 10px 15px;
+        border-radius: 8px;
+        border: 1px solid #ccc;
+        font-size: 1rem;
+        transition: background-color 0.3s, color 0.3s;
+      }
+      body.dark-mode input,
+      body.dark-mode textarea {
+        background-color: #2b2b2b;
+        border: 1px solid #555;
+        color: var(--text-light);
+      }
+
+      button {
+        background-color: var(--blue);
+        color: white;
+        border: none;
+        padding: 14px;
+        border-radius: 8px;
+        font-size: 1.1rem;
+        font-weight: 700;
+        cursor: pointer;
+        transition: background 0.3s;
+      }
+      button:hover {
+        background-color: #256ac0;
+      }
+
+      /* Theme toggle */
+      .theme-toggle-btn {
+        background: transparent;
+        border: 1px solid var(--blue);
+        color: var(--blue);
+        padding: 8px 16px;
+        border-radius: 6px;
+        cursor: pointer;
+        margin: 0 auto 1.5rem;
+        display: block;
+        font-size: 1rem;
+      }
+      body.dark-mode .theme-toggle-btn {
+        color: white;
+        border-color: white;
+      }
+
+      /* Mood prompt image & text */
+      .mood-prompt {
+        text-align: center;
+        margin-bottom: 2rem;
+      }
+      .mood-image {
+        width: 100%;
+        max-height: 250px;
+        object-fit: cover;
+        border-radius: 12px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      }
+      .mood-message {
+        margin-top: 1rem;
+        font-size: 1.2rem;
+        font-style: italic;
+        color: var(--blue);
+      }
+      body.dark-mode .mood-message {
+        color: #a3c9f8;
+      }
+
+      /* Emoji picker */
+      .icon-picker {
+        display: flex;
+        justify-content: center;
+        gap: 15px;
+        flex-wrap: wrap;
+        margin-bottom: 1rem;
+      }
+      .icon-picker button {
+        background: transparent;
+        border: 2px solid #ccc;
+        border-radius: 12px;
+        width: 80px;
+        height: 80px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: transform 0.2s, border-color 0.3s;
+      }
+      .icon-picker button:hover {
+        transform: scale(1.1);
+      }
+      .icon-picker button.selected {
+        border-color: var(--blue);
+        background-color: #e0f0ff;
+      }
+      .icon-picker button div:first-child {
+        font-size: 1.8rem;
+        color: black; /* emoji black in light */
+      }
+      body.dark-mode .icon-picker button div:first-child {
+        color: #eee; /* emoji white in dark */
+      }
+      /* Fix label text color */
+      .icon-picker button .label-text {
+        font-size: 0.9rem;
+        color: black; /* black in light mode */
+      }
+      body.dark-mode .icon-picker button .label-text {
+        color: white; /* white in dark mode */
+      }
+
+      /* Info card */
+      .info-card {
+        margin-top: 2rem;
+        padding: 1.5rem;
+        border-radius: 12px;
+        background-color: #f5f5f5;
+      }
+      body.dark-mode .info-card {
+        background-color: #1a1a1a;
+        color: var(--text-light);
+      }
+      .info-card ul {
+        padding-left: 1.5rem;
+      }
+
+      #selectedMoodDisplay {
+        text-align: center;
+        font-weight: bold;
+        font-size: 1.2rem;
+        color: var(--blue);
+      }
+
+      .error {
+        background-color: #f8d7da;
+        color: #842029;
+        border: 1px solid #f5c2c7;
+        padding: 10px;
+        border-radius: 8px;
+        margin-bottom: 1rem;
+        text-align: center;
+        font-weight: 600;
+      }
+
+ 
+
+      @media (max-width: 768px) {
+        .layout {
+          flex-direction: column;
+        }
+        .sidebar {
+          width: 100%;
+          flex-direction: row;
+          justify-content: space-around;
+        }
+        .main {
+          padding: 1rem;
+          max-width: 100%;
+        }
+      }
+
+      .recommendation {
+  margin-top: 2rem;
+  padding: 1.5rem;
+  background-color: #e0f7fa;
+  border-left: 5px solid #00bcd4;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  font-size: 1.1rem;
+  color: #006064;
+}
+body.dark-mode .recommendation {
+  background-color: #263238;
+  border-color: #90aaff;
+  color: #cfd8dc;
+}
+.recommendation i {
+  font-size: 1.5rem;
+}
+
+    </style>
+  </head>
+  <body>
+    <% var page = 'daily'; %>
+
+    <div class="layout">
+      <!-- Sidebar -->
+      <aside class="sidebar">
+        <div class="logo">MoodTracker</div>
+        <a href="/home" class="nav-link <%= page==='home'?'active':'' %>">
+          <i class="fas fa-home"></i> Home
+        </a>
+        <a href="/daily" class="nav-link <%= page==='daily'?'active':'' %>">
+          <i class="fas fa-plus-circle"></i> Add Mood
+        </a>
+        <a
+          href="/calendar"
+          class="nav-link <%= page==='calendar'?'active':'' %>"
+        >
+          <i class="fas fa-calendar-alt"></i> Calendar
+        </a>
+        <a href="/trend" class="nav-link <%= page==='trend'?'active':'' %>">
+          <i class="fas fa-chart-line"></i> Trends
+        </a>
+        <a
+          href="/settings"
+          class="nav-link <%= page==='settings'?'active':'' %>"
+        >
+          <i class="fas fa-cog"></i> Settings
+        </a>
+      </aside>
+
+      <!-- Main Content -->
+      <main class="main">
+        <button id="themeToggle" class="theme-toggle-btn">🌙 Dark Mode</button>
+
+        <h1>Hello, <%= username %></h1>
+        <h1>Record Your Mood</h1>
+
+        <div class="mood-prompt">
+          <img src="/images/mood.avif" alt="Mood Image" class="mood-image" />
+          <p class="mood-message">
+            How are you feeling right now? Take a moment to reflect!
+          </p>
+        </div>
+
+        <% if (error) { %>
+        <div class="error"><%= error %></div>
+        <% } %>
+
+                   <!-- after the form -->
+    <% if (advice) { %>
+      <div class="recommendation">
+        <i class="fas fa-lightbulb"></i>
+        <p><%= advice %></p>
+      </div>
+    <% } %>
+    <br/>
+        <form action="/daily" method="POST" novalidate>
+          <label for="moodInput">Pick a Mood:</label>
+          <div class="icon-picker" role="list">
+            <% const moods = ['😊 Happy','😢 Sad','😠 Angry','😰 Stressed','😴 Tired','😐 Neutral']; %> 
+          <% moods.forEach(m => { 
+     const parts = m.split(' ');
+     const emoji = parts[0];
+     const label = parts.slice(1).join(' ');
+%>
+            <button
+              type="button"
+              aria-label="<%= label %>"
+              data-emoji="<%= emoji %>"
+              data-label="<%= label %>"
+            >
+              <div><%= emoji %></div>
+              <div class="label-text"><%= label %></div>
+            </button>
+            <% }) %>
+          </div>
+
+          <input type="hidden" id="moodInput" name="mood" required />
+          <p id="selectedMoodDisplay" aria-live="polite"></p>
+
+          <label for="note">Note:</label>
+          <textarea
+            id="note"
+            name="note"
+            placeholder="Add any notes here..."
+            required
+          ></textarea>
+
+          <button type="submit">Save Mood</button>
+        </form>
+
+
+
+
+        <div class="info-card">
+          <h2>Why Track Your Mood?</h2>
+          <p>
+            Tracking your mood helps you understand patterns in your emotional
+            wellbeing. Over time, you'll gain insights into what influences your
+            mood and how to improve it.
+          </p>
+          <ul>
+            <li>💭 Identify triggers that affect your emotional state.</li>
+            <li>🔍 Recognize patterns in your daily emotional journey.</li>
+            <li>🌱 Develop strategies to improve your mental health.</li>
+          </ul>
+        </div>
+      </main>
+    </div>
+
+    <script>
+      // Theme toggle
+      const toggleButton = document.getElementById("themeToggle");
+      const savedTheme = localStorage.getItem("theme");
+      if (savedTheme === "dark") {
+        document.body.classList.add("dark-mode");
+        toggleButton.textContent = "🌞 Light Mode";
+      }
+      toggleButton.addEventListener("click", () => {
+        const isDark = document.body.classList.toggle("dark-mode");
+        toggleButton.textContent = isDark ? "🌞 Light Mode" : "🌙 Dark Mode";
+        localStorage.setItem("theme", isDark ? "dark" : "light");
+      });
+
+      // Mood selection
+      document.querySelectorAll(".icon-picker button").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          document
+            .querySelectorAll(".icon-picker button")
+            .forEach((b) => b.classList.remove("selected"));
+          btn.classList.add("selected");
+          const emoji = btn.dataset.emoji;
+          const label = btn.dataset.label;
+          const mood = `${emoji} ${label}`;
+          document.getElementById("moodInput").value = mood;
+          document.getElementById(
+            "selectedMoodDisplay"
+          ).textContent = `You selected: ${mood}`;
+        });
+      });
+
+      // Prevent submit if no mood chosen
+      document.querySelector("form").addEventListener("submit", (e) => {
+        if (!document.getElementById("moodInput").value) {
+          e.preventDefault();
+          alert("Please select your mood before submitting.");
+        }
+      });
+    </script>
+  </body>
+</html>
