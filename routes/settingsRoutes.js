@@ -1,11 +1,10 @@
-// routes/settings.js
+//routes/settings.js
 const express = require("express");
 const router = express.Router();
 const User = require("../models/User");
 const bcrypt = require("bcryptjs");
 
-
-// Middleware للتحقق من تسجيل الدخول
+// Middleware to ensure the user is logged in
 const isAuthenticated = (req, res, next) => {
   if (req.cookies.username) return next();
   res.redirect("/login");
@@ -20,44 +19,60 @@ router.get("/", isAuthenticated, (req, res) => {
 });
 
 router.post("/", isAuthenticated, async (req, res) => {
+  const { currentPassword, newPassword } = req.body;
+
+  // Validate inputs
+  if (!currentPassword || !newPassword) {
+    return res.render("settings", {
+      username: req.cookies.username,
+      error: "Please fill out both fields.",
+      success: null,
+    });
+  }
+  if (newPassword.length < 6) {
+    return res.render("settings", {
+      username: req.cookies.username,
+      error: "New password must be at least 6 characters.",
+      success: null,
+    });
+  }
+
   try {
-    const { password } = req.body;
-    if (!password || password.length < 6) {
+    // 1) Find the user by their cookie-backed username
+    const user = await User.findOne({ username: req.cookies.username });
+    if (!user) {
       return res.render("settings", {
         username: req.cookies.username,
-        error: "كلمة المرور يجب أن تكون على الأقل 6 أحرف.",
+        error: "User not found.",
         success: null,
       });
     }
 
-    // تجزئة كلمة المرور
-    const hash = await bcrypt.hash(password, 10);
-
-    // ابحث عن المستخدم وحدث كلمة المرور
-    const updatedUser = await User.findOneAndUpdate(
-      { username: req.cookies.username },
-      { password: hash },
-      { new: true }
-    );
-
-    if (!updatedUser) {
+    // 2) Check current password
+    const match = await bcrypt.compare(currentPassword, user.password);
+    if (!match) {
       return res.render("settings", {
         username: req.cookies.username,
-        error: "المستخدم غير موجود.",
+        error: "Current password is incorrect.",
         success: null,
       });
     }
 
-    res.render("settings", {
+    // 3) Hash & save the new password
+    const hash = await bcrypt.hash(newPassword, 10);
+    user.password = hash;
+    await user.save();
+
+    return res.render("settings", {
       username: req.cookies.username,
       error: null,
-      success: "تم تحديث كلمة المرور بنجاح!",
+      success: "Password updated successfully!",
     });
   } catch (err) {
     console.error("Settings POST error:", err);
-    res.render("settings", {
+    return res.render("settings", {
       username: req.cookies.username,
-      error: "حدث خطأ داخلي، حاول لاحقًا.",
+      error: "Failed to save settings. Try again later.",
       success: null,
     });
   }
